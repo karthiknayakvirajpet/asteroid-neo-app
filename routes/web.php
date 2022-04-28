@@ -16,3 +16,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::controller(App\Http\Controllers\NeoFeedController::class)->group(function () 
+{
+    //Neo Feed View Page
+    Route::get('neo-feed-view', 'neoFeedView');
+
+    //Get Neo Feed based on date
+    Route::get('get-neo-feed', 'getNeoFeed');
+});
