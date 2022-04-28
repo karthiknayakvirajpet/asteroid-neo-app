@@ -40,18 +40,10 @@ function drawChart1()
 {    
     var values = [ {{ $dates }} ];    
                 
-    //values.push([value.month, value.boys, value.girls, value.total]);
-                    
-
     var data1 = new google.visualization.arrayToDataTable(
-                	 
         [ values ],
-        // [value['month'], value['boys'] , value['girls'], value['total']],
         [30.9, 69.5, 32.4],
-        
-
     );
-
 
     var options1 = {
     chart: {
