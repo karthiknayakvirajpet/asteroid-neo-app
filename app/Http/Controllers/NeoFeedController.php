@@ -46,23 +46,62 @@ class NeoFeedController extends Controller
 
         curl_close($ch);
 
-        $a = json_decode($result);
+        $results = json_decode($result);
 
-        $b = $a->near_earth_objects;
+        $near_earth_objects = $results->near_earth_objects;
 
-        foreach ($b as $key => $i) 
+        $speed = [];
+        $dis = [];
+        $dates = [];
+
+        foreach ($near_earth_objects as $key => $i) 
         {
-            //return gettype($b);
+            $dates[] = $key;
 
-            $z = array_column($i, 'id');
-            return $z;
+            $estimated_diameter = array_column($i, 'estimated_diameter');
+            $kilometers = array_column($estimated_diameter, 'kilometers');
+            $estimated_diameter_max = array_column($kilometers, 'estimated_diameter_max');
+            $count = count($estimated_diameter_max);
+            $avg_size = static::average($estimated_diameter_max, $count);
+
+
+            $close_approach_data = array_column($i, 'close_approach_data');
+            $kilometers_per_hour = [];
+            $distance = [];
+            foreach ($close_approach_data as $key) 
+            {
+                $relative_velocity = array_column($key, 'relative_velocity');
+                $kilometers_per_hour[] = array_column($relative_velocity, 'kilometers_per_hour');
+
+
+                $miss_distance = array_column($key, 'miss_distance');
+                $distance[] = array_column($miss_distance, 'kilometers');
+            };
+            $speed[] = $kilometers_per_hour;
+            $dis[] = $distance;         
         }
+        $velocity = max(array_merge(...$speed));
+        $max_speed = implode(" ",$velocity);
+
+        $min_distance = min(array_merge(...$dis));
+        $nearest = implode(" ",$min_distance);
+
+        $dates = implode(',',$dates);
+
+        return view('neo_feed_view')->with(array('avg_size'=>$avg_size, 'max_speed'=>$max_speed, 'nearest'=> $nearest, 'dates' => $dates));
+    }
 
 
-       
-
-
-        //return view('neo_feed_view')->with(array($this->discountdetail_=>$discountdetail));
+    #*************************************************************************
+    # Find sum of array element
+    #*************************************************************************
+    function average( $a, $n)
+    {
+        $sum = 0;
+        for ( $i = 0; $i < $n; $i++)
+            $sum += $a[$i];
+     
+        return $sum / $n;
     }
 
 
